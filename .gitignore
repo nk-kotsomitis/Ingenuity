@@ -1,0 +1,15 @@
+/.idea
+/build
+/dist
+/logs
+/src/__pycache__
+/src/buffers.py
+/src/buffers.c
+/src/scales.py
+/src/scales.c
+/users_folder
+/venv
+build_exe.py
+compile_pyd.py
+Ingenuity.spec
+
