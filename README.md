@@ -1,9 +1,11 @@
 
 <div align="center">
-  <img src="./assets/logo_ingenuity.png" alt="ingenuity." width="300"/>
+  <img src="./assets/logo_ingenuity.png" alt="ingenuity." width="200"/>
 </div>
+ 
 
-Ingenuity is designed to benchmark the inference performance of ML models on embedded
+
+AIngenuity is designed to benchmark the inference performance of ML models on embedded
 devices using its own inference engine.
 Benchmarking a quantized TFLite model typically involves multiple steps, including building
 and deploying the model on the device, as well as designing and implementing benchmarking
