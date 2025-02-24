@@ -48,7 +48,7 @@ class AboutWindow(QDialog):
         Qt.AspectRatioMode.KeepAspectRatio, Qt.SmoothTransformation))
 
         # TODO: Add projects github when published, not mine
-        self.github_label = QLabel('<a href="https://github.com/nk-kotsomitis">GitHub Repository</a>')
+        self.github_label = QLabel('<a href="https://github.com/nk-kotsomitis/ingenuity">GitHub Repository</a>')
         self.github_label.setOpenExternalLinks(True)
         self.github_layout = QHBoxLayout()
         self.github_layout.addWidget(self.github_icon)
