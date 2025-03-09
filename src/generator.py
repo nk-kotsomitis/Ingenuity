@@ -1,3 +1,6 @@
+# Copyright (C) 2025 Ingenuity
+# Licensed under the GNU General Public License v3.0
+
 from configuration import *
 from files import MAIN_C, NN_MODEL_C, NN_C, NN_H, NN_API_H, NN_ASM
 import utils

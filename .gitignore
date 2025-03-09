@@ -14,3 +14,5 @@ build_exe.py
 compile_pyd.py
 Ingenuity.spec
 
+inference_engine
+
