@@ -6,6 +6,8 @@
 <br>
 <br>
 
+![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)  
+
 ## Introduction
 <b>Ingenuity</b> is designed to benchmark the inference performance of ML models on embedded
 devices using its own inference engine.
@@ -75,3 +77,8 @@ The <b>main panel</b> displays benchmark results for the following metrics: <br>
 &nbsp;&nbsp; o	The first table shows the device's overall memory usage. <br>
 &nbsp;&nbsp; o	The second table shows the inference engine’s memory usage as a separate component. <br>
 4.	<b>Energy</b> – This feature is currently under development. <br>
+
+## License  
+This project is licensed under the **GNU General Public License v3.0**.  
+See the [LICENSE](LICENSE) file for details.  
+
