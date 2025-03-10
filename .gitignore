@@ -4,6 +4,7 @@ docs/User's_Manual.docx
 /dist
 /logs
 /src/__pycache__
+/src/tflite/__pycache__
 /src/buffers.py
 /src/buffers.c
 /src/scales.py
@@ -13,6 +14,4 @@ docs/User's_Manual.docx
 build_exe.py
 compile_pyd.py
 Ingenuity.spec
-
-inference_engine
 
