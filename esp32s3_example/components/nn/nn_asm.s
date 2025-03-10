@@ -1,11 +1,3 @@
-; This file is Assembly code
-# a1 + 16: arg1 - a2 - pointer_sm 
-# a1 + 20: arg2 - a3 - pointer_zf
-# a1 + 24: arg3 - a4 - pointer_a1
-# a1 + 28: arg4 - a5 - pointer_w
-# a1 + 32: arg5 - a6 - pointer_b
-# a1 + 36: arg6 - a7 - pointer_a2
-
 	.text
 	.align	4
 	.global	nn_asm
