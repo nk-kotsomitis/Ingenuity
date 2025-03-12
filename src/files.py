@@ -13,8 +13,8 @@ MAIN_C = """
 void app_main(void)
 {
     NN_lite_res_t res = NN_LITE_ERROR;
-    In_out_t input[NN_LITE_INPUT_LENGTH] = {};
-    In_out_t *output;
+    In_out_t *input = NULL;
+    In_out_t *output = NULL;
     
     vTaskDelay(pdMS_TO_TICKS(500));
     
@@ -24,18 +24,24 @@ void app_main(void)
     {
         for(uint32_t dataset_idx = 0; dataset_idx < DATASET_LEN; dataset_idx++)
         {
+            // Get the pointer for the input
+            input = NN_lite_get_p_input();
+
             // Set validation input
-            val_set_input(input, dataset_idx);
+            val_set_input(&input, dataset_idx);
     
             // Start cycles counter
             val_inference_start();
     
             // Inference
-            res = NN_lite_inference(input, &output);
+            res = NN_lite_inference();
     
             // Stop cycles counter
             val_inference_end(dataset_idx);
-    
+            
+            // Get the pointer for the input
+			output = NN_lite_get_p_output();
+			
             // Set validation output
             val_output(output, dataset_idx);
     
@@ -65,10 +71,21 @@ NN_C = """
 #include <stdio.h>
 #include <stdlib.h>
 #include <inttypes.h>
+#include <math.h>
 
 #include "include/nn.h"
 
-NN_lite_res_t NN_lite_inference(In_out_t *input, In_out_t **output)
+In_out_t *NN_lite_get_p_input()
+{
+	return &c_array_a[CARRAY_A_A1];
+}
+
+In_out_t NN_lite_quantize_FloatToInt(float input)
+{
+	return (In_out_t)(round((input / INPUT_SCALE) + INPUT_ZERO_POINT));
+}
+
+NN_lite_res_t NN_lite_inference()
 {		
     // Result
     NN_lite_res_t res = NN_LITE_ERROR;
@@ -80,31 +97,29 @@ NN_lite_res_t NN_lite_inference(In_out_t *input, In_out_t **output)
     Zero_actf_t const *p_zf = &c_array_zf[0];
     In_out_t *p_a1 = &c_array_a[CARRAY_A_A1];
     In_out_t *p_a2 = &c_array_a[CARRAY_A_A2];
-
-    // Input
-    for (uint16_t i = 0; i < INPUT_LENGTH; i++)
-    {
-        *(p_a1++) = input[i];
-    }
-
-    p_a1 = &c_array_a[CARRAY_A_A1];
-
+	
     // Invoke	
     res = nn_asm(p_shapes, p_zf, p_a1, p_weights, p_biases, p_a2);
-
     // printf("\\n\\nRes = 0x%"PRIx32"  %"PRId32"\\n", res, res); // Debug
+	
+    return res;		
+}
 
-    // Output
+float NN_lite_dequantize_IntToFloat(In_out_t output)
+{
+	return ((float)output - (float)OUTPUT_ZERO_POINT) * OUTPUT_SCALE;
+}
+
+In_out_t *NN_lite_get_p_output()
+{
     if (c_array_sm[0] % 2)
     {
-        *output = &c_array_a[CARRAY_A_A2];	
+        return &c_array_a[CARRAY_A_A2];	
     }
     else
     {
-        *output = &c_array_a[CARRAY_A_A1];
-    }
-
-    return res;		
+        return &c_array_a[CARRAY_A_A1];
+    }	
 }
     """
 
@@ -167,21 +182,22 @@ typedef int8_t In_out_t;
 #define NN_LITE_INPUT_LENGTH {input_length}
 #define NN_LITE_OUTPUT_LENGTH {output_length}
 
-NN_lite_res_t NN_lite_inference(In_out_t *input, In_out_t **output);
+In_out_t *NN_lite_get_p_input();
+
+In_out_t NN_lite_quantize_FloatToInt(float input);
+
+NN_lite_res_t NN_lite_inference();
+
+float NN_lite_dequantize_IntToFloat(In_out_t output);
+
+In_out_t *NN_lite_get_p_output();
 
 #endif /* NN_LITE_API_H */
 """
 
 
 NN_ASM = """
-# a1 + 16: arg1 - a2 - pointer_sm
-# a1 + 20: arg2 - a3 - pointer_zf
-# a1 + 24: arg3 - a4 - pointer_a1
-# a1 + 28: arg4 - a5 - pointer_w
-# a1 + 32: arg5 - a6 - pointer_b
-# a1 + 36: arg6 - a7 - pointer_a2
-
-	.text
+	.section	".text"
 	.align	4
 	.global	nn_asm
 	.type	nn_asm, @function
@@ -216,6 +232,10 @@ nn_asm:
 	f9 - acc init
 	f10 - act_function
 	f11 - zero_point_2
+	f12 - y_mul_0
+	f13 - y_mul_1
+	f14 - y_mul_2
+	f15 - y_mul_3
 	rc < 64 => (0 		  [1-8])
 	rc = 64 => (0 		     8 )
 	rc > 64 => ([1-65535] [1-8])
@@ -272,20 +292,24 @@ POINTERS_END:
 	wfr f11, a13
 
 	l32i  a14, a3, 8		// a14  = y_params
-	addi  a1, a1, -16		
+	#addi  a1, a1, -16		
 
 	l32i  a9,  a3, 12		// a14  = y_mul_0
-	s32i  a9,  a1, 0
-
+	#s32i  a9,  a1, 0
+	wfr f12, a9
+	
 	l32i  a9,  a3, 16		// a14  = y_mul_1
-	s32i  a9,  a1, 4
-
+	#s32i  a9,  a1, 4
+	wfr f13, a9
+	
 	l32i  a9,  a3, 20		// a14  = y_mul_2
-	s32i  a9,  a1, 8
-
+	#s32i  a9,  a1, 8
+	wfr f14, a9
+	
 	l32i  a9,  a3, 24		// a14  = y_mul_3
-	s32i  a9,  a1, 12
-
+	#s32i  a9,  a1, 12
+	wfr f15, a9
+	
 	addi   a3, a3, 28		// pointer_zf += 7
 	#addi   a3, a3, 1024		// pointer_zf += 256
 # ------------------------------------------
@@ -380,7 +404,8 @@ DEQUANTIZATION:
 
 	# ******* res = acc * y_mul_0 *******
 	movi   a12, 0		// res
-	l32i a8, a1, 0		// load y_mul_0
+	#l32i a8, a1, 0		// load y_mul_0
+	rfr a8, f12
 	mull a12, a15, a8	// mull
 
 
@@ -389,7 +414,8 @@ DEQUANTIZATION:
 	ssr	   a9				// SAR = y1
 	sra    a15, a15			// a9 = acc >> y1
 
-	l32i  a8, a1, 4			// load y_mul_1
+	#l32i  a8, a1, 4			// load y_mul_1
+	rfr a8, f13
 	mull  a9, a15, a8		// mull
 	add a12, a12, a9		// a12 += a8
 
@@ -400,7 +426,8 @@ DEQUANTIZATION:
 	sra    a15, a15			// a9 = acc >> y1
 
 
-	l32i  a8, a1, 8			// load y_mul_3
+	#l32i  a8, a1, 8			// load y_mul_3
+	rfr a8, f14
 	mull  a9, a15, a8		// mull
 	add a12, a12, a9		// a12 += a8
 
@@ -410,7 +437,8 @@ DEQUANTIZATION:
 	ssr	   a9				// SAR = y1
 	sra    a15, a15			// a9 = acc >> y1
 
-	l32i  a8, a1, 12		// load y_mul_1
+	#l32i  a8, a1, 12		// load y_mul_1
+	rfr a8, f15
 	mull  a9, a15, a8		// mull
 	add a12, a12, a9		// a12 += a8
 
@@ -420,7 +448,8 @@ DEQUANTIZATION_NEGATIVE_ACC:
 
 	# ******* res = acc * y_mul_0 *******
 	movi   a12, 0		// res
-	l32i a8, a1, 0		// load y_mul_0
+	#l32i a8, a1, 0		// load y_mul_0
+	rfr a8, f12
 	mull a12, a15, a8	// mull
 
 
@@ -431,7 +460,8 @@ DEQUANTIZATION_NEGATIVE_ACC:
 	sra    a15, a15			// a9 = acc >> y1
 	neg    a15, a15
 
-	l32i  a8, a1, 4			// load y_mul_1
+	#l32i  a8, a1, 4			// load y_mul_1
+	rfr a8, f13
 	mull  a9, a15, a8		// mull
 	add a12, a12, a9		// a12 += a8
 
@@ -444,7 +474,8 @@ DEQUANTIZATION_NEGATIVE_ACC:
 	neg    a15, a15
 
 
-	l32i  a8, a1, 8			// load y_mul_3
+	#l32i  a8, a1, 8			// load y_mul_3
+	rfr a8, f14
 	mull  a9, a15, a8		// mull
 	add a12, a12, a9		// a12 += a8
 
@@ -456,7 +487,8 @@ DEQUANTIZATION_NEGATIVE_ACC:
 	sra    a15, a15			// a9 = acc >> y1
 	neg    a15, a15
 
-	l32i  a8, a1, 12		// load y_mul_1
+	#l32i  a8, a1, 12		// load y_mul_1
+	rfr a8, f15
 	mull  a9, a15, a8		// mull
 	add a12, a12, a9		// a12 += a8
 
@@ -558,7 +590,7 @@ ST_MATRIX_REM_START:
 ST_MATRIX_REM_END:
 
 	addi  a3, a3, 1024				// pointer_zf += 256 * 4 1024
-	addi  a1, a1, 16				
+	# addi  a1, a1, 16				
 
 	rfr a9, f2						// a9 = f2 = layers
 	bnez a9, ST_LAYER_START			// if f2 != 0, jump
@@ -582,6 +614,7 @@ SWAP_POINTERS_END:
 	retw
 	.size	nn_asm, .-nn_asm
 	.ident	"GCC: (crosstool-NG esp-13.2.0_20230928) 13.2.0"
+
 
 """
 
@@ -726,12 +759,12 @@ void histogram_show(uint32_t dataset_idx)
     memset(histogram, 0, sizeof(histogram));
 }
 
-void val_set_input(int8_t *input, uint32_t dataset_idx)
+void val_set_input(int8_t **input, uint32_t dataset_idx)
 {
     for (uint16_t i = 0; i < DATASET_INPUT_LEN; i++) 
     {
         // Set the input
-        input[i] = dataset_inputs[dataset_idx][i];
+        (*input)[i] = dataset_inputs[dataset_idx][i];
     }
 }
 
@@ -762,7 +795,7 @@ VALIDATION_H = """
 #define DATASET_LEN {dataset_rows}
 #define DATASET_INPUT_LEN {dataset_columns}
 
-void val_set_input(int8_t *input, uint32_t dataset_idx);
+void val_set_input(int8_t **input, uint32_t dataset_idx);
 void val_output(int8_t *output, uint32_t dataset_idx);
 void val_inference_start();
 void val_inference_end(uint32_t dataset_idx);
