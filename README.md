@@ -4,7 +4,6 @@
 </div>
 <br>
 <br>
-<br>
 
 ![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)  
 
@@ -14,8 +13,6 @@
 ## Inference Engine
 The inference engine is a lightweight, memory-efficient library. All buffers are pre-compiled, avoiding dynamic memory allocation, and it is optimized for high performance while maintaining a minimal, easy-to-use C API.
 
-<br>
-<br>
 <br>
 <div align="center">
   <img src="./assets/screenshot_1.png" alt="software_screenshot" width="800"/>
