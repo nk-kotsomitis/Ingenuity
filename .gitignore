@@ -5,6 +5,7 @@ docs/User's_Manual.docx
 /logs
 /src/__pycache__
 /src/tflite/__pycache__
+/src/logs
 /src/buffers.py
 /src/buffers.c
 /src/scales.py

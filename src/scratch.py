@@ -1,104 +1,104 @@
-# Copyright (C) 2025 Ingenuity
-# Licensed under the GNU General Public License v3.0
-
-import numpy as np
-import matplotlib.pyplot as plt
-
-
-# total_size | IRAM | .text | .vectors |  DIRAM | .bss |  .data | .text | Flash Code | .text | Flash Data | .rodata | .appdesc | RTC FAST | .rtc_reserved
-# 0: "total", 1: "IRAM_total", 2: ".text" (child_of_IRAM_total,
-
-keys = [
-            "Total size", "IRAM", "  .text", "  .vectors", "DIRAM", "  .bss", "  .data",
-            "  .text", "Flash Code", "  .text", "Flash Data", "  .rodata", "  .appdesc",
-            "RTC FAST", "  .rtc_reserved"
-        ]
-
-values = [283370, 20, 20, 0, 283350, 1282, 281502, 566, 0, 0, 0, 0, 0, 0, 0]
-
-sizes_component = list(zip(keys, values))
-sizes_component = sizes_component[1:] + [sizes_component[0]]
-
-print(sizes_component)
-
-if False:
-    fig, ax = plt.subplots(figsize=(6, 6))
-    ax.axis("off")
-    table = ax.table(cellText=sizes_component, colLabels=["Memory Section", "Size [Bytes]"], loc="center", cellLoc="left", edges='vertical')
-    table.auto_set_font_size(False)
-    table.set_fontsize(10)
-    table.auto_set_column_width([0, 1])
-    table.scale(1, 1.2)
-
-    for (i, j), cell in table.get_celld().items():
-        if i == 0:  # Header row
-            cell.set_text_props(weight='bold', )  # backgroundcolor='#0d0d0d'
-            cell.set_facecolor("#000000")  # Light gray background
-    plt.show()
-
-if False:
-    import numpy as np
-    import matplotlib.pyplot as plt
-    from mpl_toolkits.mplot3d import Axes3D
+from configuration import *
+from converter import model_converter
+from buffers import generate_buffers
+from generator import generate_public_files
+from files import VALIDATION_C, VALIDATION_H
+import pandas as pd
+import utils
+import os
 
 
-    error_categories = np.array([-2, -1, 0,  1, 2])
+def generate_engine_model(tf_lite_model, output_path):
+    settings_inf_rate = 50
+    settings_inferences_n = 10
+
+    # Start
+    print("Generating engine...")
+
+    # Step 1
+    print("De-serializing the TFlite model...")
+    model_deserialized = model_converter(tf_lite_model)
+
+    # Step 2
+    print("Processing buffers...")
+    buffers, definitions_dict, typedefs_dict = generate_buffers(model_deserialized)
+
+    # Step 3
+    print("Generating files...")
+    generate_public_files(buffers, definitions_dict, typedefs_dict, output_path, settings_inf_rate, settings_inferences_n)
+
+    # Completed
+    print("Engine generated successfully!")
 
 
-    inference_ids_1 = np.array([4, 4, 4, 4, 4])
-    inference_ids_2 = np.array([3, 3, 3, 3, 3])
-    inference_ids_3 = np.array([2, 2, 2, 2, 2])
-    inference_ids_4 = np.array([1, 1, 1, 1, 1])
+def generate_validator(dataset_input, dataset_output):
+    # Start
+    print("Generating validator...")
+
+    # Step 1
+    print("Processing buffers...")
+    data_input = pd.read_csv(dataset_input, header=None)
+    dataset_output = pd.read_csv(dataset_output, header=None)
+
+    # TODO: For testing
+    TEST_PART = True
+    TEST_CNT = 1
+    cnt = TEST_CNT
+
+    # Step 2
+    print("Converting to code...")
+    c_arrays_inputs = []
+    for index, row in data_input.iterrows():
+        c_arrays_inputs.append(row.tolist())
+        if TEST_PART:
+            if cnt == 0:
+                cnt = TEST_CNT
+                break
+            cnt -= 1
+
+    rows_i = len(c_arrays_inputs)
+    columns_i = len(c_arrays_inputs[0])
+
+    c_arrays_outputs = []
+    for index, row in dataset_output.iterrows():
+        c_arrays_outputs.append(row.tolist())
+        if TEST_PART:
+            if cnt == 0:
+                break
+            cnt -= 1
+    rows_o = len(c_arrays_outputs)
+    columns_o = len(c_arrays_outputs[0])
+
+    # TODO: Check that rows and columns of inputs and outputs are equal
+    rows = rows_i = rows_o
+    columns = columns_i = columns_o
+
+    # Convert to code
+    dataset_input_code = utils.convert_c_arrays_to_code(c_arrays_inputs, 'input')
+    dataset_output_code = utils.convert_c_arrays_to_code(c_arrays_outputs, 'output')
+
+    # Replace variables
+    validation_c_file = (VALIDATION_C
+                         .replace("{dataset_input_code}", str(dataset_input_code))
+                         .replace("{dataset_output_code}", str(dataset_output_code)))
+    validation_h_file = VALIDATION_H.replace("{dataset_rows}", str(rows)).replace("{dataset_columns}",
+                                                                                  str(columns))
+
+    # Step 3
+    print("Generating files...")
+    utils.generate_file(os.path.abspath(os.path.join(output_path, PATH_MAIN, FILENAME_VALIDATION_C)),
+                        validation_c_file)
+    utils.generate_file(os.path.abspath(os.path.join(output_path, PATH_MAIN, FILENAME_VALIDATION_H)),
+                        validation_h_file)
+
+    # Completed
+    print("Validator generated successfully!")
 
 
-    hist_1 = np.array([40, 500, 1000, 200, 40])
-    hist_2 = np.array([30, 700, 900, 100, 50])
-    hist_3 = np.array([30, 700, 900, 100, 50])
-    hist_4 = np.array([30, 700, 900, 100, 50])
+tf_lite_model = "../users_folder/model/model_ToyCar_quant_fullint_micro_intio.tflite"
+output_path = "../users_folder/esp32s3_micro_intio"
+dat_input = "../users_folder/datasets/rep_dataset_input.csv"
+dat_output = "../users_folder/datasets/rep_dataset_output.csv"
 
-    # Create 3D figure
-    fig = plt.figure(figsize=(10, 6))
-    ax = fig.add_subplot(111, projection='3d')
-    # Bar width
-    dx = 0.9
-    dy = 0.2
-
-    ax.bar3d(error_categories, inference_ids_1, np.zeros_like(hist_1), dx, dy, hist_1, color='#5b95c2', alpha=1.0, label="Current")
-    ax.bar3d(error_categories, inference_ids_2, np.zeros_like(hist_2), dx, dy, hist_2, color='#5b95c2', alpha=0.5, label="Previous")
-    ax.bar3d(error_categories, inference_ids_3, np.zeros_like(hist_3), dx, dy, hist_3, color='#5b95c2', alpha=0.2, label="Previous")
-    ax.bar3d(error_categories, inference_ids_4, np.zeros_like(hist_4), dx, dy, hist_4, color='#5b95c2', alpha=0.1, label="Previous")
-
-
-    # ax.xaxis.label.set_color('red')   # X-axis label color
-    # ax.yaxis.label.set_color('green') # Y-axis label color
-    # ax.zaxis.label.set_color('blue')  # Z-axis label color
-
-    # ax.tick_params(axis='x', colors='red')
-    # ax.tick_params(axis='y', colors='green')
-    # ax.tick_params(axis='z', colors='blue')
-
-    ax.xaxis._axinfo['grid'].update(color='white', linestyle='solid')
-    ax.yaxis._axinfo['grid'].update(color='white', linestyle='solid')
-    ax.zaxis._axinfo['grid'].update(color='white', linestyle='solid')
-
-    ax.xaxis.set_pane_color('white')  # Or any color you prefer
-    ax.yaxis.set_pane_color('white')  # Or any color you prefer
-    ax.zaxis.set_pane_color('white')  # Or any color you prefer
-
-    # Labels and Titles
-    ax.set_xlabel("Error Category")
-    ax.set_ylabel("Inference Counter")
-    ax.set_zlabel("Frequency")
-    # ax.set_title("3D Histogram: Current vs. Previous Errors")
-    ax.set_xticks([-2, -1, 0, 1, 2])
-    ax.set_yticks([1, 2, 3, 4])
-    ax.set_ylim(4, 1)
-    # ax.legend(loc='upper left')
-
-    ax.view_init(elev=30, azim=45)
-    ax.set_proj_type('ortho')
-    plt.ioff()
-    plt.show()
-
-
-a = {'DIRAM': ['333188', '97.49', '8572', '341760'], '.bss': ['292036', '85.45'], '.data': ['37539', '10.98'], '.text': ['15356', '93.73'], 'Flash Code': ['89320', '1.06', '8299256', '8388576'], 'Flash Data': ['42464', '0.13', '33511936', '33554400'], '.rodata': ['42208', '0.13'], '.appdesc': ['256', '0.0'], 'IRAM': ['16383', '99.99', '1', '16384'], '.vectors': ['1027', '6.27'], 'RTC FAST': ['280', '3.42', '7912', '8192'], '.rtc_reserved': ['24', '0.29']}
+generate_engine_model(tf_lite_model, output_path)
+# generate_validator(dat_input, dat_output)

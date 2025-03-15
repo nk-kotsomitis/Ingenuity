@@ -97,9 +97,9 @@ class SettingsWindow(QDialog):
 
         # Value 1
         self.param_1 = QHBoxLayout()
-        self.label_1 = QLabel("Enter inference rate in milliseconds [50, 1000]")
+        self.label_1 = QLabel("Enter inference rate in milliseconds [0, 1000]")
         self.input_inf_rate = QSpinBox(self)
-        self.input_inf_rate.setRange(50, 1000)
+        self.input_inf_rate.setRange(0, 1000)
         self.input_inf_rate.setValue(int(project_file['inference_rate']))
         self.input_inf_rate.setFixedWidth(inputs_width)
         self.param_1.addWidget(self.label_1)
