@@ -1,8 +1,101 @@
 # Copyright (C) 2025 Ingenuity
 # Licensed under the GNU General Public License v3.0
 
-MAIN_C = """
+EXAMPLE_MAIN_C = """
+/*
+ * main.c
+ *
+ * Copyright (C) 2025 Ingenuity
+ *
+ * This file is part of Ingenuity.
+ *
+ * Ingenuity is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Ingenuity is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Ingenuity.  If not, see <https://www.gnu.org/licenses/>.
+ */
+ 
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
+#include "freertos/projdefs.h"
 
+#include "../components/nn/include/NN_lite_API.h"
+
+void app_main(void)
+{
+    NN_lite_res_t res = NN_LITE_ERROR;
+    In_out_t *input = NULL;
+    In_out_t *output = NULL;
+
+    while(1)
+    {
+        // Get the pointer for the input
+        input = NN_lite_get_p_input();
+        
+        // Set the input
+        for (uint16_t i = 0; i < NN_LITE_INPUT_LENGTH; i++) 
+        {
+            input[i] = i;
+        }
+        
+        // Invoke inference
+        res = NN_lite_inference();
+        
+        if (res != NN_LITE_SUCCESS)
+        {
+            printf("Inference failed: %d", res);
+            return;
+        }
+        else
+        {
+            printf("Inference succeeded!\\r\\n");
+        }
+                
+        // Get the pointer for the input
+        output = NN_lite_get_p_output();
+        
+        // Get the output
+        for (uint16_t i = 0; i < NN_LITE_OUTPUT_LENGTH; i++) 
+        {
+            // printf("%d ", output[i]);
+        }
+        printf("\\r\\n");
+        
+        vTaskDelay(pdMS_TO_TICKS(3000));
+    }
+}
+"""
+
+VALIDATION_MAIN_C = """
+/*
+ * main.c
+ *
+ * Copyright (C) 2025 Ingenuity
+ *
+ * This file is part of Ingenuity.
+ *
+ * Ingenuity is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Ingenuity is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Ingenuity.  If not, see <https://www.gnu.org/licenses/>.
+ */
+ 
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 
@@ -59,6 +152,27 @@ void app_main(void)
 
 
 NN_MODEL_C = """
+/*
+ * nn.c
+ *
+ * Copyright (C) 2025 Ingenuity
+ *
+ * This file is part of Ingenuity.
+ *
+ * Ingenuity is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Ingenuity is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Ingenuity.  If not, see <https://www.gnu.org/licenses/>.
+ */
+ 
 #include <stdint.h>
 #include "include/nn.h"
 
@@ -67,6 +181,27 @@ NN_MODEL_C = """
 """
 
 NN_C = """
+/*
+ * nn.h
+ *
+ * Copyright (C) 2025 Ingenuity
+ *
+ * This file is part of Ingenuity.
+ *
+ * Ingenuity is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Ingenuity is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Ingenuity.  If not, see <https://www.gnu.org/licenses/>.
+ */
+ 
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -125,6 +260,27 @@ In_out_t *NN_lite_get_p_output()
 
 
 NN_H = """\
+/*
+ * nn.h
+ *
+ * Copyright (C) 2025 Ingenuity
+ *
+ * This file is part of Ingenuity.
+ *
+ * Ingenuity is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Ingenuity is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Ingenuity.  If not, see <https://www.gnu.org/licenses/>.
+ */
+ 
 #ifndef NN_H
 #define NN_H
 
@@ -161,35 +317,91 @@ int8_t nn_asm(Shapes_m_t const *p_shapes,
 
 
 NN_API_H = """\
- /*
+/*
  * NN_lite_API.h
  *
- *  Created on: Jan 1, 2025
- *      Author: NN
+ * Copyright (C) 2025 Ingenuity
+ *
+ * This file is part of Ingenuity.
+ *
+ * Ingenuity is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Ingenuity is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Ingenuity.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #ifndef NN_LITE_API_H
 #define NN_LITE_API_H
 
+/** 
+ * @brief Result type for the inference
+ */
 typedef enum
 {
     NN_LITE_ERROR = 0,
     NN_LITE_SUCCESS = 1
 } NN_lite_res_t;
 
+/** Type used for input/output buffer data (int8) */
 typedef int8_t In_out_t;
 
+/** The input buffer length */
 #define NN_LITE_INPUT_LENGTH {input_length}
+/** The output buffer length */
 #define NN_LITE_OUTPUT_LENGTH {output_length}
 
+/**
+ * @brief Retrieves the pointer to the input buffer with a length of NN_LITE_INPUT_LENGTH
+ *
+ * @return A pointer to the input buffer.
+ */
 In_out_t *NN_lite_get_p_input();
 
+/**
+ * @brief Quantize a floating-point value to int8.
+ *
+ * This function uses the model's input scale and zero-point for the quantization process.
+ *
+ * @param input The floating-point value to be quantized.
+ *
+ * @return The quantized int8 value.
+ */
 In_out_t NN_lite_quantize_FloatToInt(float input);
 
+/**
+ * @brief Performs inference on the model
+ *
+ * This function runs the model on the input data and generates the output.
+ *
+ * @return The result of the inference, represented by a status code from the NN_lite_res_t type.
+ *         NN_LITE_SUCCESS indicates successful inference, while NN_LITE_ERROR indicates a failure.
+ */
 NN_lite_res_t NN_lite_inference();
 
+/**
+ * @brief De-quantize an int8 value to a floating-point value.
+ *
+ * This function uses the model's output scale and zero-point for the de-quantization process.
+ *
+ * @param output The int8 value to be de-quantized.
+ *
+ * @return The de-quantized floating-point value.
+ */
 float NN_lite_dequantize_IntToFloat(In_out_t output);
 
+/**
+ * @brief Retrieves the pointer to the output buffer with a length of NN_LITE_OUTPUT_LENGTH
+ *
+ * @return A pointer to the output buffer.
+ */
 In_out_t *NN_lite_get_p_output();
 
 #endif /* NN_LITE_API_H */
@@ -197,6 +409,25 @@ In_out_t *NN_lite_get_p_output();
 
 
 NN_ASM = """
+# nn_asm.s
+#
+# Copyright (C) 2025 Ingenuity
+#
+# This file is part of Ingenuity.
+#
+# Ingenuity is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Ingenuity is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Ingenuity.  If not, see <https://www.gnu.org/licenses/>.
+
 	.section	".text"
 	.align	4
 	.global	nn_asm
@@ -619,6 +850,27 @@ SWAP_POINTERS_END:
 """
 
 VALIDATION_C = """
+/*
+ * validation.c
+ *
+ * Copyright (C) 2025 Ingenuity
+ *
+ * This file is part of Ingenuity.
+ *
+ * Ingenuity is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Ingenuity is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Ingenuity.  If not, see <https://www.gnu.org/licenses/>.
+ */
+ 
 #include <stdint.h>
 #include <string.h>
 #include "validation.h"
@@ -786,7 +1038,27 @@ void val_output(int8_t *output, uint32_t dataset_idx)
 """
 
 VALIDATION_H = """
-
+/*
+ * validation.h
+ *
+ * Copyright (C) 2025 Ingenuity
+ *
+ * This file is part of Ingenuity.
+ *
+ * Ingenuity is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Ingenuity is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Ingenuity.  If not, see <https://www.gnu.org/licenses/>.
+ */
+ 
 #ifndef VALIDATION_H
 #define VALIDATION_H
 

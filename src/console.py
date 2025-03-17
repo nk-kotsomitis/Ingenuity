@@ -95,6 +95,22 @@ class SettingsWindow(QDialog):
         self.buttonBox.accepted.connect(self.accept)
         self.buttonBox.rejected.connect(self.reject)
 
+        # Value 00
+        self.param_00 = QHBoxLayout()
+        self.label_00 = QLabel("Generate Inference Engine")
+        self.input_generate_inference_engine = QCheckBox(self)
+        self.input_generate_inference_engine.setChecked(bool(project_file['generate_inference_engine']))
+        self.param_00.addWidget(self.label_00)
+        self.param_00.addWidget(self.input_generate_inference_engine, alignment=Qt.AlignmentFlag.AlignRight)
+
+        # Value 01
+        self.param_01 = QHBoxLayout()
+        self.label_01 = QLabel("Enable Benchmark")
+        self.input_enable_benchmark = QCheckBox(self)
+        self.input_enable_benchmark.setChecked(bool(project_file['enable_benchmark']))
+        self.param_01.addWidget(self.label_01)
+        self.param_01.addWidget(self.input_enable_benchmark, alignment=Qt.AlignmentFlag.AlignRight)
+
         # Value 1
         self.param_1 = QHBoxLayout()
         self.label_1 = QLabel("Enter inference rate in milliseconds [0, 1000]")
@@ -124,6 +140,8 @@ class SettingsWindow(QDialog):
         self.param_3.addWidget(self.input_show_graphs, alignment=Qt.AlignmentFlag.AlignRight)
 
         self.box_layout = QVBoxLayout()
+        self.box_layout.addLayout(self.param_00)
+        self.box_layout.addLayout(self.param_01)
         self.box_layout.addLayout(self.param_1)
         self.box_layout.addLayout(self.param_2)
         self.box_layout.addLayout(self.param_3)
@@ -132,9 +150,13 @@ class SettingsWindow(QDialog):
         self.setLayout(self.box_layout)
 
     def get_settings(self):
-        settings = {'inference_rate': self.input_inf_rate.value(),
+        settings = {
+                    'generate_inference_engine': self.input_generate_inference_engine.isChecked(),
+                    'enable_benchmark': self.input_enable_benchmark.isChecked(),
+                    'inference_rate': self.input_inf_rate.value(),
                     'inferences_n': self.input_inf_n.value(),
-                    'show_graphs': self.input_show_graphs.isChecked()}
+                    'show_graphs': self.input_show_graphs.isChecked()
+        }
         return settings
 
 

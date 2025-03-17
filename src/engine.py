@@ -14,7 +14,7 @@ from PySide6.QtGui import QImage, QIcon, QAction, QFont, QFontDatabase, QIntVali
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 import matplotlib.pyplot as plt
 from logger import sim_logger
-from files import VALIDATION_C, VALIDATION_H
+from files import VALIDATION_C, VALIDATION_H, VALIDATION_MAIN_C
 import pandas as pd
 import numpy as np
 import utils
@@ -116,13 +116,6 @@ class EngineMain(QMainWindow):
         self.canvas_2 = FigureCanvas(self.figure_2)
         self.canvas_3 = FigureCanvas(self.figure_3)
         self.canvas_4 = FigureCanvas(self.figure_4)
-
-        # self.dots_label = QLabel(self)
-        # self.dots_movie = QMovie("assets/dots.gif")
-        # self.dots_label.setMovie(self.dots_movie)
-        # self.dots_label.setFixedWidth(50)
-        # self.dots_label.setFixedHeight(50)
-        # self.dots_movie.start()
 
         # --------------------------- Menu Bar ---------------------------
 
@@ -542,6 +535,8 @@ class EngineMain(QMainWindow):
         self._project_file['toolchain_path'] = prog_file['toolchain_path']
         self._project_file['input_dataset'] = prog_file['input_dataset']
         self._project_file['output_dataset'] = prog_file['output_dataset']
+        self._project_file['generate_inference_engine'] = prog_file['generate_inference_engine']
+        self._project_file['enable_benchmark'] = prog_file['enable_benchmark']
         self._project_file['inference_rate'] = prog_file['inference_rate']
         self._project_file['inferences_n'] = prog_file['inferences_n']
         self._project_file['show_graphs'] = prog_file['show_graphs']
@@ -594,6 +589,8 @@ class EngineMain(QMainWindow):
             sim_logger.error(f"Failed to update recent projects: {e}")
 
     def _update_project_settings(self, settings):
+        self._project_file['generate_inference_engine'] = settings['generate_inference_engine']
+        self._project_file['enable_benchmark'] = settings['enable_benchmark']
         self._project_file['inference_rate'] = settings['inference_rate']
         self._project_file['inferences_n'] = settings['inferences_n']
         self._project_file['show_graphs'] = settings['show_graphs']
@@ -894,6 +891,8 @@ class EngineMain(QMainWindow):
             self.settings_inf_rate = project_file['inference_rate']
             self.settings_inferences_n = project_file['inferences_n']
             self.toolchain_esp_idf_key = project_file['idf_id']
+            self.generate_inference_engine = project_file['generate_inference_engine']
+            self.enable_benchmark = project_file['enable_benchmark']
 
             # Serial variables
             self.serial_port = ""
@@ -926,14 +925,17 @@ class EngineMain(QMainWindow):
 
         def run(self):
             try:
-                # Generate engine
-                self.generate_engine_model()
-                # Generate validator
-                self.generate_validator()
-                # Device Build and Flash
-                if self.device_build_and_flash():
-                    # Device monitor
-                    self.device_monitor()
+                if self.generate_inference_engine is True:
+                    # Generate engine
+                    self.generate_engine_model()
+                # Check if benchmark is enabled
+                if self.enable_benchmark is True:
+                    # Generate validator
+                    self.generate_validator()
+                    # Device Build and Flash
+                    if self.device_build_and_flash():
+                        # Device monitor
+                        self.device_monitor()
             except Exception as e:
                 sim_logger.error(e)
 
@@ -956,10 +958,7 @@ class EngineMain(QMainWindow):
 
             # Step 3
             sim_logger.info("Generating files...")
-            generate_public_files(buffers, definitions_dict, typedefs_dict,
-                                  self.output_path, self.settings_inf_rate, self.settings_inferences_n)
-
-            # TODO: generate main.c with empty or simple example
+            generate_public_files(buffers, definitions_dict, typedefs_dict, self.output_path)
 
             # Completed
             sim_logger.info("Engine generated successfully!")
@@ -1018,6 +1017,10 @@ class EngineMain(QMainWindow):
                                  .replace("{dataset_output_code}", str(dataset_output_code)))
             validation_h_file = VALIDATION_H.replace("{dataset_rows}", str(rows)).replace("{dataset_columns}",
                                                                                           str(columns))
+            # App main
+            main_c_file = (VALIDATION_MAIN_C
+                           .replace("{inference_rate}", str(self.settings_inf_rate))
+                           .replace("{inferences_n}", str(self.settings_inferences_n)))
 
             # Step 3
             sim_logger.info("Generating files...")
@@ -1025,7 +1028,8 @@ class EngineMain(QMainWindow):
                                 validation_c_file)
             utils.generate_file(os.path.abspath(os.path.join(self.output_path, PATH_MAIN, FILENAME_VALIDATION_H)),
                                 validation_h_file)
-
+            utils.generate_file(os.path.abspath(os.path.join(self.output_path, PATH_MAIN, FILENAME_MAIN_C)),
+                                main_c_file)
             # Completed
             sim_logger.info("Validator generated successfully!")
 

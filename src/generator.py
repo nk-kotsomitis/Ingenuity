@@ -2,7 +2,7 @@
 # Licensed under the GNU General Public License v3.0
 
 from configuration import *
-from files import MAIN_C, NN_MODEL_C, NN_C, NN_H, NN_API_H, NN_ASM
+from files import EXAMPLE_MAIN_C, NN_MODEL_C, NN_C, NN_H, NN_API_H, NN_ASM
 import utils
 import os
 
@@ -58,13 +58,12 @@ def _convert_typedefs_to_code(typedefs):
     return code
 
 
-def generate_public_files(buffers, definitions_dict, typedefs_dict, output_path, settings_inf_rate, settings_inf_n):
+def generate_public_files(buffers, definitions_dict, typedefs_dict, output_path):
     c_array_w = buffers[0]
     c_array_b = buffers[1]
     c_array_sm = buffers[2]
     c_array_zf = buffers[3]
     c_array_a = buffers[4]
-    # c_array_f = buffers[5]
 
     # Definitions
     definitions_code = _convert_definitions_to_code(definitions=definitions_dict)
@@ -93,15 +92,8 @@ def generate_public_files(buffers, definitions_dict, typedefs_dict, output_path,
                                              data_type=DATA_TYPE_DICT_TO_TYPEDEFS_MAP['c_array_a'],
                                              c_array_list=c_array_a)
 
-    # if conversion:
-    #     code += _convert_c_array_to_code(name='c_array_f',
-    #                                      data_type=DATA_TYPE_DICT_TO_TYPEDEFS_MAP['c_array_f'],
-    #                                      c_array_list=c_array_f)
-
     # App main
-    main_c_file = (MAIN_C
-                   .replace("{inference_rate}", str(settings_inf_rate))
-                   .replace("{inferences_n}", str(settings_inf_n)))
+    example_main_c_file = EXAMPLE_MAIN_C
     # Model file
     model_c_file = NN_MODEL_C.replace("{c_arrays}", str(buffers_code))
     # NN c files
@@ -114,7 +106,7 @@ def generate_public_files(buffers, definitions_dict, typedefs_dict, output_path,
                        .replace("{output_length}", str(definitions_dict["OUTPUT_LENGTH"])))
 
     # Generate files
-    utils.generate_file(os.path.abspath(os.path.join(output_path, PATH_MAIN, FILENAME_MAIN_C)), main_c_file)
+    utils.generate_file(os.path.abspath(os.path.join(output_path, PATH_MAIN, FILENAME_MAIN_C)), example_main_c_file)
     utils.generate_file(os.path.abspath(os.path.join(output_path, PATH_SRC, FILENAME_MODEL_C)), model_c_file)
     utils.generate_file(os.path.abspath(os.path.join(output_path, PATH_SRC, FILENAME_NN_C)), nn_c_file)
     utils.generate_file(os.path.abspath(os.path.join(output_path, PATH_SRC, FILENAME_NN_ASM)), NN_ASM)

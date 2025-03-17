@@ -1,4 +1,24 @@
-	.text
+
+# nn_asm.s
+#
+# Copyright (C) 2025 Ingenuity
+#
+# This file is part of Ingenuity.
+#
+# Ingenuity is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Ingenuity is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Ingenuity.  If not, see <https://www.gnu.org/licenses/>.
+
+	.section	".text"
 	.align	4
 	.global	nn_asm
 	.type	nn_asm, @function
@@ -33,6 +53,10 @@ nn_asm:
 	f9 - acc init
 	f10 - act_function
 	f11 - zero_point_2
+	f12 - y_mul_0
+	f13 - y_mul_1
+	f14 - y_mul_2
+	f15 - y_mul_3
 	rc < 64 => (0 		  [1-8])
 	rc = 64 => (0 		     8 )
 	rc > 64 => ([1-65535] [1-8])
@@ -89,20 +113,24 @@ POINTERS_END:
 	wfr f11, a13
 
 	l32i  a14, a3, 8		// a14  = y_params
-	addi  a1, a1, -16		
+	#addi  a1, a1, -16		
 
 	l32i  a9,  a3, 12		// a14  = y_mul_0
-	s32i  a9,  a1, 0
-
+	#s32i  a9,  a1, 0
+	wfr f12, a9
+	
 	l32i  a9,  a3, 16		// a14  = y_mul_1
-	s32i  a9,  a1, 4
-
+	#s32i  a9,  a1, 4
+	wfr f13, a9
+	
 	l32i  a9,  a3, 20		// a14  = y_mul_2
-	s32i  a9,  a1, 8
-
+	#s32i  a9,  a1, 8
+	wfr f14, a9
+	
 	l32i  a9,  a3, 24		// a14  = y_mul_3
-	s32i  a9,  a1, 12
-
+	#s32i  a9,  a1, 12
+	wfr f15, a9
+	
 	addi   a3, a3, 28		// pointer_zf += 7
 	#addi   a3, a3, 1024		// pointer_zf += 256
 # ------------------------------------------
@@ -197,7 +225,8 @@ DEQUANTIZATION:
 
 	# ******* res = acc * y_mul_0 *******
 	movi   a12, 0		// res
-	l32i a8, a1, 0		// load y_mul_0
+	#l32i a8, a1, 0		// load y_mul_0
+	rfr a8, f12
 	mull a12, a15, a8	// mull
 
 
@@ -206,7 +235,8 @@ DEQUANTIZATION:
 	ssr	   a9				// SAR = y1
 	sra    a15, a15			// a9 = acc >> y1
 
-	l32i  a8, a1, 4			// load y_mul_1
+	#l32i  a8, a1, 4			// load y_mul_1
+	rfr a8, f13
 	mull  a9, a15, a8		// mull
 	add a12, a12, a9		// a12 += a8
 
@@ -217,7 +247,8 @@ DEQUANTIZATION:
 	sra    a15, a15			// a9 = acc >> y1
 
 
-	l32i  a8, a1, 8			// load y_mul_3
+	#l32i  a8, a1, 8			// load y_mul_3
+	rfr a8, f14
 	mull  a9, a15, a8		// mull
 	add a12, a12, a9		// a12 += a8
 
@@ -227,7 +258,8 @@ DEQUANTIZATION:
 	ssr	   a9				// SAR = y1
 	sra    a15, a15			// a9 = acc >> y1
 
-	l32i  a8, a1, 12		// load y_mul_1
+	#l32i  a8, a1, 12		// load y_mul_1
+	rfr a8, f15
 	mull  a9, a15, a8		// mull
 	add a12, a12, a9		// a12 += a8
 
@@ -237,7 +269,8 @@ DEQUANTIZATION_NEGATIVE_ACC:
 
 	# ******* res = acc * y_mul_0 *******
 	movi   a12, 0		// res
-	l32i a8, a1, 0		// load y_mul_0
+	#l32i a8, a1, 0		// load y_mul_0
+	rfr a8, f12
 	mull a12, a15, a8	// mull
 
 
@@ -248,7 +281,8 @@ DEQUANTIZATION_NEGATIVE_ACC:
 	sra    a15, a15			// a9 = acc >> y1
 	neg    a15, a15
 
-	l32i  a8, a1, 4			// load y_mul_1
+	#l32i  a8, a1, 4			// load y_mul_1
+	rfr a8, f13
 	mull  a9, a15, a8		// mull
 	add a12, a12, a9		// a12 += a8
 
@@ -261,7 +295,8 @@ DEQUANTIZATION_NEGATIVE_ACC:
 	neg    a15, a15
 
 
-	l32i  a8, a1, 8			// load y_mul_3
+	#l32i  a8, a1, 8			// load y_mul_3
+	rfr a8, f14
 	mull  a9, a15, a8		// mull
 	add a12, a12, a9		// a12 += a8
 
@@ -273,7 +308,8 @@ DEQUANTIZATION_NEGATIVE_ACC:
 	sra    a15, a15			// a9 = acc >> y1
 	neg    a15, a15
 
-	l32i  a8, a1, 12		// load y_mul_1
+	#l32i  a8, a1, 12		// load y_mul_1
+	rfr a8, f15
 	mull  a9, a15, a8		// mull
 	add a12, a12, a9		// a12 += a8
 
@@ -375,7 +411,7 @@ ST_MATRIX_REM_START:
 ST_MATRIX_REM_END:
 
 	addi  a3, a3, 1024				// pointer_zf += 256 * 4 1024
-	addi  a1, a1, 16				
+	# addi  a1, a1, 16				
 
 	rfr a9, f2						// a9 = f2 = layers
 	bnez a9, ST_LAYER_START			// if f2 != 0, jump
@@ -399,4 +435,5 @@ SWAP_POINTERS_END:
 	retw
 	.size	nn_asm, .-nn_asm
 	.ident	"GCC: (crosstool-NG esp-13.2.0_20230928) 13.2.0"
+
 

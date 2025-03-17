@@ -86,6 +86,15 @@ def parse_project_file(project_filename):
     sim_logger.info(f"Project's settings applied successfully: output_dataset={conf['output_dataset']}")
 
     # -------------------------- settings ---------------------------
+    conf['generate_inference_engine'] = config.get('settings', {}).get('generate_inference_engine', None)
+    if conf['generate_inference_engine'] is None:
+        return {}
+    sim_logger.info(f"Project's settings applied successfully: generate_inference_engine={conf['generate_inference_engine']}")
+
+    conf['enable_benchmark'] = config.get('settings', {}).get('enable_benchmark', None)
+    if conf['enable_benchmark'] is None:
+        return {}
+    sim_logger.info(f"Project's settings applied successfully: enable_benchmark={conf['enable_benchmark']}")
 
     conf['inference_rate'] = config.get('settings', {}).get('inference_rate', '')
     if not conf['inference_rate']:

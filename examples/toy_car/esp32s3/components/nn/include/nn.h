@@ -1,3 +1,24 @@
+/*
+ * nn.h
+ *
+ * Copyright (C) 2025 Ingenuity
+ *
+ * This file is part of Ingenuity.
+ *
+ * Ingenuity is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Ingenuity is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Ingenuity.  If not, see <https://www.gnu.org/licenses/>.
+ */
+ 
 #ifndef NN_H
 #define NN_H
 
@@ -15,6 +36,10 @@
 #define CARRAY_ALIGN 16
 #define INPUT_LENGTH 640
 #define OUTPUT_LENGTH 640
+#define INPUT_SCALE 0.3910152316093445
+#define INPUT_ZERO_POINT 89
+#define OUTPUT_SCALE 0.36449846625328064
+#define OUTPUT_ZERO_POINT 96
 
 
 typedef int8_t Weights_t;

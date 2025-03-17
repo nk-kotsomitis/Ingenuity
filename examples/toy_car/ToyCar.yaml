@@ -5,8 +5,8 @@
 #       The 'settings' section in this file can be modified later from the GUI.
 
 main:
-  output_directory: "esp32s3_output"        # Path where the IDF project files will be stored
-  model_file: "model.tflite"                # Path to the TensorFlow Lite model file
+  output_directory: "esp32s3"               # Path where the IDF project files will be stored
+  model_file: "model_ToyCar_quant_fullint_micro_intio.tflite" # Path to the TensorFlow Lite model file
 
 device:
   manufacturer: "Espressif"                 # Name of the device manufacturer
@@ -18,7 +18,7 @@ validator:                                  # The csv files needed for the bench
   output_dataset: "rep_dataset_output.csv"  # CSV file containing the expected output of the representative dataset
 
 settings:
-  generate_inference_engine: true           # Whether to generate the inference engine with the model (true or false)
+  generate_inference_engine: false          # Whether to generate the inference engine with the model (true or false)
   enable_benchmark: true                    # Whether to perform benchmark (true or false)
   inference_rate: 50                        # Inference interval in milliseconds (valid range: 0 to 1000 ms)
   inferences_n: 100                         # Total number of inferences to run (valid range: 1 to 10^9)

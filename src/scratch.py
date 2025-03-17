@@ -25,7 +25,7 @@ def generate_engine_model(tf_lite_model, output_path):
 
     # Step 3
     print("Generating files...")
-    generate_public_files(buffers, definitions_dict, typedefs_dict, output_path, settings_inf_rate, settings_inferences_n)
+    generate_public_files(buffers, definitions_dict, typedefs_dict, output_path)
 
     # Completed
     print("Engine generated successfully!")

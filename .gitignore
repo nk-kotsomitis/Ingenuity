@@ -1,9 +1,11 @@
 /.idea
 docs/User's_Manual.docx
 docs/~$er's_Manual.docx
+docs/Inference_engine_C_API.docx
 docs/README.docx
 /build
 /dist
+/examples/toy_car/esp32s3/build
 /logs
 /src/__pycache__
 /src/tflite/__pycache__
