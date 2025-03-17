@@ -23,14 +23,18 @@ The inference engine is a lightweight, memory-efficient library. All buffers are
 Benchmarking a quantized TFLite model typically involves multiple steps, including building and deploying the model on the device, as well as designing and implementing benchmarking test suites. Ingenuity automates this entire process with a single click, seamlessly bridging the gap between model quantization and benchmarking. Through the Graphical User Interface (GUI), benchmark metrics such as inference latency, memory usage, and quantization accuracy can be easily monitored within seconds. This allows users to benchmark their models quickly and efficiently.
 
 ## Supported hardware & ML models
-Ingenuity supports quantized TensorFlow Lite ML models based on fully connected feed-forward neural networks. The inference engine is optimized to utilize the AI hardware accelerators and internal memory of the ESP32-S3 microcontroller from Espressif.
+The Ingenuity Inference Engine, along with the converted model, is implemented as an ESP-IDF component. It is optimized for performance and leverages the AI hardware accelerators of the ESP32-S3 microcontroller from Espressif. The entire component is stored in the internal memory of the microcontroller.
 
-<b>For detailed instructions, refer to the [User's Manual](docs/user_manual.pdf). </b>
+## Supported ML models
+The Ingenuity Inference Engine supports quantized TensorFlow Lite models based on fully connected feed-forward neural networks.
+
+<b>For detailed instructions, refer to the [User's Manual](docs/"User's Manual.pdf"). </b>
 
 ## Directory structure
 📂 <b>assets</b> – Misc images and files <br>
 📂 <b>docs</b> – Documents <br>
 📂 <b>esp32s3</b> – ESP-IDF template project <br>
+📂 <b>examples</b> – Examples <br>
 📂 <b>src</b> – Source code <br>
 
 ## Setup
