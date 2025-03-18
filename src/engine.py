@@ -1008,8 +1008,8 @@ class EngineMain(QMainWindow):
             columns = columns_i = columns_o
 
             # Convert to code
-            dataset_input_code = utils.convert_c_arrays_to_code(c_arrays_inputs, 'input')
-            dataset_output_code = utils.convert_c_arrays_to_code(c_arrays_outputs, 'output')
+            dataset_input_code = utils.convert_c_arrays_to_code(c_arrays_inputs, 'input', 'int8_t')
+            dataset_output_code = utils.convert_c_arrays_to_code(c_arrays_outputs, 'output', 'int8_t')
 
             # Replace variables
             validation_c_file = (VALIDATION_C

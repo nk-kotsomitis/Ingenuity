@@ -197,19 +197,19 @@ def copy_folder_skip_existing(source_folder, destination_path):
                 sim_logger.info(f"Copied file: {dest_file}")
 
 
-def convert_c_arrays_to_code(c_arrays_list, name):
+def convert_c_arrays_to_code(c_arrays_list, name, datatype):
     code = ""
     code_ptr = ""
     for i, c_array in enumerate(c_arrays_list):
         array_code = ", ".join(f"{x}" for x in c_array)
         code += f"""\
-const int8_t {name}_{i}[] = {'{'}{array_code}{'}'};
+const {datatype} {name}_{i}[] = {'{'}{array_code}{'}'};
 """
         code_ptr += f"{name}_{i}, "
     else:
         code += f"""
 
-const int8_t *dataset_{name}s[] = {'{'}{code_ptr}{'}'};
+const {datatype} *dataset_{name}s[] = {'{'}{code_ptr}{'}'};
 
         """
     return code
