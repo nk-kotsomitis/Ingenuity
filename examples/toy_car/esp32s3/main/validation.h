@@ -25,7 +25,7 @@
 
 #include <stdint.h>
 
-#define DATASET_LEN 2
+#define DATASET_LEN 10
 #define DATASET_INPUT_LEN 640
 
 void val_set_input(int8_t **input, uint32_t dataset_idx);

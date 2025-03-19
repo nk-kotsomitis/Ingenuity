@@ -175,7 +175,7 @@ class PDFViewer(QMainWindow):
         self.pdf_doc = QPdfDocument(self)
 
         # Load the PDF document
-        self.pdf_doc.load(os.path.join(assets_path, "User's Manual.pdf"))
+        self.pdf_doc.load(os.path.join(assets_path, "Ingenuity User's Manual.pdf"))
         self.pdf_view.setDocument(self.pdf_doc)
 
         # Enable two-page mode

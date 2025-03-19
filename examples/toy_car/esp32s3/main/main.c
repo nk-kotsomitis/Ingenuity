@@ -62,7 +62,7 @@ void app_main(void)
             // Set validation output
             val_output(output, dataset_idx);
     
-            vTaskDelay(pdMS_TO_TICKS(10));
+            vTaskDelay(pdMS_TO_TICKS(50));
             
             inferences_n--;
             if(!inferences_n)
