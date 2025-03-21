@@ -28,7 +28,9 @@ The Ingenuity Inference Engine, along with the converted model, is implemented a
 ## Supported ML models
 The Ingenuity Inference Engine supports quantized TensorFlow Lite models based on fully connected feed-forward neural networks.
 
-<b>For detailed instructions, refer to the [User's Manual](docs/"User's Manual.pdf"). </b>
+<b>For more information, refer to the [Inference Engine](docs/Ingenuity_Inference_Engine.pdf). </b>
+
+<b>For detailed instructions, refer to the [User's Manual](docs/Ingenuity_User's_Manual.pdf). </b>
 
 ## Directory structure
 📂 <b>assets</b> – Misc images and files <br>
