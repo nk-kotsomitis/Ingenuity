@@ -41,7 +41,7 @@ def generate_validator(dataset_input, dataset_output):
     dataset_output = pd.read_csv(dataset_output, header=None)
 
     # TODO: For testing
-    TEST_PART = True
+    TEST_PART = False
     TEST_CNT = 1
     cnt = TEST_CNT
 
@@ -74,8 +74,8 @@ def generate_validator(dataset_input, dataset_output):
     columns = columns_i = columns_o
 
     # Convert to code
-    dataset_input_code = utils.convert_c_arrays_to_code(c_arrays_inputs, 'input')
-    dataset_output_code = utils.convert_c_arrays_to_code(c_arrays_outputs, 'output')
+    dataset_input_code = utils.convert_c_arrays_to_code(c_arrays_inputs, 'input', 'int8_t')
+    dataset_output_code = utils.convert_c_arrays_to_code(c_arrays_outputs, 'output', 'int8_t')
 
     # Replace variables
     validation_c_file = (VALIDATION_C
@@ -96,9 +96,9 @@ def generate_validator(dataset_input, dataset_output):
 
 
 tf_lite_model = "../users_folder/model/model_ToyCar_quant_fullint_micro_intio.tflite"
-output_path = "../users_folder/esp32s3_micro_intio"
+output_path = "../users_folder/esp32s3"
 dat_input = "../users_folder/datasets/rep_dataset_input.csv"
 dat_output = "../users_folder/datasets/rep_dataset_output.csv"
 
 generate_engine_model(tf_lite_model, output_path)
-# generate_validator(dat_input, dat_output)
+generate_validator(dat_input, dat_output)
