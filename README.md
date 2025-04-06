@@ -10,12 +10,9 @@
 ## Introduction
 <b>Ingenuity</b> is an optimized inference engine and benchmarking tool for TinyML models on embedded IoT devices.
 
-## Inference Engine
-The inference engine is a lightweight, memory-efficient library. All buffers are pre-compiled, avoiding dynamic memory allocation, and it is optimized for high performance while maintaining a minimal, easy-to-use C API.
-
 <br>
 <div align="center">
-  <img src="./assets/screenshot_1.png" alt="software_screenshot" width="800"/>
+  <img src="./assets/screenshot_1.png" alt="software_screenshot" width="900"/>
 </div>
 <br>
 
@@ -27,24 +24,36 @@ Benchmarking a quantized TFLite model typically involves multiple steps, includi
 ## Inference Engine
 The **Ingenuity Inference Engine** is a lightweight, memory-efficient, and high-performance library designed for running machine learning models on embedded devices.
 A **TensorFlow Lite (TFLite) model** is first parsed using the tflite Python package and then converted into C buffer arrays. All buffers are **pre-compiled**, eliminating the need for dynamic memory allocation, and are optimized for high performance while maintaining a minimal, easy-to-use **C API** with no external dependencies.
-<b></b>
+<br></br>
 The Ingenuity Inference Engine, along with the converted model, is implemented as an **ESP-IDF component**. It is optimized for performance and leverages the AI hardware accelerators of the **ESP32-S3** microcontroller from **Espressif**. The entire component is stored in the **internal memory** of the microcontroller, ensuring low-latency execution and efficient resource utilization. The Ingenuity Inference Engine supports quantized TensorFlow Lite models based on **fully connected feed-forward neural networks**.
-<b></b>
+<br></br>
 The following benchmark serves as a demonstration and utilizes a pre-trained model from MLPerf Tiny, specifically the **Deep Autoencoder** for Anomaly Detection in machine operating sounds. The model is a quantized INT8 version with integer input and output. The comparison is conducted under identical conditions—using the same setup, hardware, input, and expected output (obtained from the TensorFlow Lite Python interpreter)—to evaluate the performance of the **Ingenuity Inference Engine** against Espressif’s **ESP-TFLite-Micro**. 
-<b></b>
-The latency for a single inference using Ingenuity is 276,554 cycles (1.728 ms), whereas with ESP-TFLite-Micro, it is 460,716 cycles (2.879 ms), both running at 160 MHz. This demonstrates a performance improvement of approximately **1.67x**.
-<b></b>
-The total memory footprint is 611 bytes for Ingenuity and 21,360 bytes for ESP-TFLite-Micro, excluding the memory allocated for the model. This represents a **35.0x** reduction in memory usage.
-<b></b>
-The following histograms compare the accuracy of the two inference engines with the TFLite Python Interpreter, using an indicative input with random values. The x-axis represents the difference between the output and the expected output.
+<br></br>
+The latency for a single inference using Ingenuity is 276,554 cycles (1.728 ms), whereas with ESP-TFLite-Micro, it is 460,716 cycles (2.879 ms), both running at 160 MHz. This demonstrates a performance improvement of approximately **1.67x**
+<div align="center">
+  <img src="./assets/pp_latency.png" alt="latency" width="250"/>
+</div>
+<br></br>
 
-<b></b>
+The total memory footprint is 611 bytes for Ingenuity and 21,360 bytes for ESP-TFLite-Micro, excluding the memory allocated for the model. This represents a **35.0x** reduction in memory usage.
+<div align="center">
+  <img src="./assets/pp_memory.png" alt="latency" width="250"/>
+</div>
+<br></br>
+
+The following histograms compare the accuracy of the two inference engines with the TFLite Python Interpreter, using an indicative input with random values. The x-axis represents the difference between the output and the expected output. 
+<br></br>
+We can see that the Ingenuity Inference Engine has **no errors** compared to the ESP-TFlite-Micro where the errors are mostly distributed between -1 and 1.
+<div align="center">
+  <img src="./assets/pp_accuracy.png" alt="latency" width="800"/>
+</div>
+<br></br>
 
 ### C API Usage Example
 
 <br>
 <div align="left">
-  <img src="./assets/c_api_example.png" alt="c_api_example" width="850"/>
+  <img src="./assets/c_api_example.png" alt="c_api_example" width="600"/>
 </div>
 <br>
 
