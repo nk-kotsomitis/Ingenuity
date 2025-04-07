@@ -61,7 +61,7 @@ nn_asm:
 	rc = 64 => (0 		     8 )
 	rc > 64 => ([1-65535] [1-8])
 	*/
-
+		
 STATE_INIT:
 	wfr f0, a4			// f0 = pointer_a1
 	wfr f1, a7			// f1 = pointer_a2
@@ -113,22 +113,17 @@ POINTERS_END:
 	wfr f11, a13
 
 	l32i  a14, a3, 8		// a14  = y_params
-	#addi  a1, a1, -16		
 
 	l32i  a9,  a3, 12		// a14  = y_mul_0
-	#s32i  a9,  a1, 0
 	wfr f12, a9
 	
 	l32i  a9,  a3, 16		// a14  = y_mul_1
-	#s32i  a9,  a1, 4
 	wfr f13, a9
 	
 	l32i  a9,  a3, 20		// a14  = y_mul_2
-	#s32i  a9,  a1, 8
 	wfr f14, a9
 	
 	l32i  a9,  a3, 24		// a14  = y_mul_3
-	#s32i  a9,  a1, 12
 	wfr f15, a9
 	
 	addi   a3, a3, 28		// pointer_zf += 7
@@ -140,7 +135,6 @@ POINTERS_END:
 ST_MATRIX_START:
 	ee.zero.accx						// accx = 0
 	wfr f8, a4
-	#mov a8, a4							// a8 = a4 = pointer_a1
 	sub.s f6, f6, f3					// layers_n--
 	movi a15, 0 						// a15 = loop counter = 0
 
@@ -225,17 +219,15 @@ DEQUANTIZATION:
 
 	# ******* res = acc * y_mul_0 *******
 	movi   a12, 0		// res
-	#l32i a8, a1, 0		// load y_mul_0
 	rfr a8, f12
 	mull a12, a15, a8	// mull
 
 
 	# ******* res = acc * y_mul_1 *******
 	extui  a9, a14, 0, 8	// a9 = y1
-	ssr	   a9				// SAR = y1
+	wsr.sar	   a9				// SAR = y1
 	sra    a15, a15			// a9 = acc >> y1
 
-	#l32i  a8, a1, 4			// load y_mul_1
 	rfr a8, f13
 	mull  a9, a15, a8		// mull
 	add a12, a12, a9		// a12 += a8
@@ -243,11 +235,9 @@ DEQUANTIZATION:
 
 	# ******* res = acc * y_mul_2 *******
 	extui  a9, a14, 8, 8	// a9 = y1
-	ssr	   a9				// SAR = y1
+	wsr.sar 	   a9				// SAR = y1
 	sra    a15, a15			// a9 = acc >> y1
 
-
-	#l32i  a8, a1, 8			// load y_mul_3
 	rfr a8, f14
 	mull  a9, a15, a8		// mull
 	add a12, a12, a9		// a12 += a8
@@ -255,10 +245,9 @@ DEQUANTIZATION:
 
 	# ******* res = acc * y_mul_3 *******
 	extui  a9, a14, 16, 8	// a9 = y1
-	ssr	   a9				// SAR = y1
+	wsr.sar 	   a9				// SAR = y1
 	sra    a15, a15			// a9 = acc >> y1
 
-	#l32i  a8, a1, 12		// load y_mul_1
 	rfr a8, f15
 	mull  a9, a15, a8		// mull
 	add a12, a12, a9		// a12 += a8
@@ -266,22 +255,20 @@ DEQUANTIZATION:
 j DEQUANTIZATION_Y_MAX
 	# ********** Negative ACC ********************
 DEQUANTIZATION_NEGATIVE_ACC:
-
+		
 	# ******* res = acc * y_mul_0 *******
 	movi   a12, 0		// res
-	#l32i a8, a1, 0		// load y_mul_0
 	rfr a8, f12
 	mull a12, a15, a8	// mull
 
-
 	# ******* res = acc * y_mul_1 *******
 	extui  a9, a14, 0, 8	// a9 = y1
-	ssr	   a9				// SAR = y1
+	wsr.sar 	   a9				// SAR = y1
 	neg    a15, a15
 	sra    a15, a15			// a9 = acc >> y1
+	addi a15, a15, 1
 	neg    a15, a15
-
-	#l32i  a8, a1, 4			// load y_mul_1
+	
 	rfr a8, f13
 	mull  a9, a15, a8		// mull
 	add a12, a12, a9		// a12 += a8
@@ -289,13 +276,12 @@ DEQUANTIZATION_NEGATIVE_ACC:
 
 	# ******* res = acc * y_mul_2 *******
 	extui  a9, a14, 8, 8	// a9 = y1
-	ssr	   a9				// SAR = y1
+	wsr.sar 	   a9				// SAR = y1
 	neg    a15, a15
 	sra    a15, a15			// a9 = acc >> y1
+	addi a15, a15, 1
 	neg    a15, a15
 
-
-	#l32i  a8, a1, 8			// load y_mul_3
 	rfr a8, f14
 	mull  a9, a15, a8		// mull
 	add a12, a12, a9		// a12 += a8
@@ -303,12 +289,12 @@ DEQUANTIZATION_NEGATIVE_ACC:
 
 	# ******* res = acc * y_mul_3 *******
 	extui  a9, a14, 16, 8	// a9 = y1
-	ssr	   a9				// SAR = y1
+	wsr.sar 	   a9				// SAR = y1
 	neg    a15, a15
 	sra    a15, a15			// a9 = acc >> y1
+	addi a15, a15, 1
 	neg    a15, a15
 
-	#l32i  a8, a1, 12		// load y_mul_1
 	rfr a8, f15
 	mull  a9, a15, a8		// mull
 	add a12, a12, a9		// a12 += a8
@@ -316,6 +302,7 @@ DEQUANTIZATION_NEGATIVE_ACC:
 DEQUANTIZATION_Y_MAX:
 
 	bltz a12, DEQUANTIZATION_Y_MAX_POSITIVE
+	
 	# ******* Positive res Y_max *********************
 	extui  a9, a14, 24, 8	// a9 = y_max
 	#ssr	a9					// SAR = y_max
@@ -331,44 +318,49 @@ DEQUANTIZATION_Y_MAX_POSITIVE:
 	wsr.sar a9
 	neg a12, a12
 	sra  a12, a12			// res >> ymax
+	addi a15, a15, 1
 	neg  a15, a12
 
-
 DEQUANTIZATION_ZERO_POINT:
-	#extui a9,  a13, 24, 8	// a9 = zero_point_a2
-	#srai a9, a13, 24		// a9 = zero_point_a2 NOTE: Arithmetic shift is required to preserve sign
 	rfr a9, f11
 	add  a15, a15, a9		// a15 = acc + zero_point_a2
 
-
 	rfr a12, f9 // accum
 	beqz a12, LUT_END
-
-#j LUT_END
-
+	
+	# TODO: This checks if it's the last layer. 
+	# To be changed to jump if the accumulator is negative TBC
+	rfr a9, f2
+	beqz a9, LUT_LAST
+	
+	
 LUT:
 	addi a13, a15, 128		// idx = res + 128 [0 - 255]
-    slli a13, a13, 2        // idx * 4 bytes
-
+	slli a13, a13, 2        // idx * 4 bytes
 	add a3, a3, a13			// a3 = a3 + idx
 	l32i a9, a3, 0
 	neg a13, a13
 	add a3, a3, a13
 
-    // if (accum >= acc_limit)
-    // if (acc_limit < accum)
 	rfr a12, f9					// a12 = accum
-	
-	
-    
-    #bge a12, a9, LUT_END
-	
 	blt a12, a9, LUT_END		// a12 = accum, a9 = limit,   if (accum >= limit)  res++
     addi a15, a15, 1 // res++
+		
 LUT_END:
+	j CLIPPING
 
-	# Clipping
-#j DEQUANTIZATION_END
+LUT_LAST:	
+	addi a13, a15, 127		// idx = res + 128 [0 - 255]
+    slli a13, a13, 2        // idx * 4 bytes
+	add a3, a3, a13			// a3 = a3 + idx
+	l32i a9, a3, 0
+	neg a13, a13
+	add a3, a3, a13
+
+	rfr a12, f9					// a12 = accum
+	bge a12, a9, CLIPPING
+    addi a15, a15, -1 // res++
+
 CLIPPING:
     movi a9, 127
     blt a15, a9, CHECK_LOWER_BOUND
@@ -435,5 +427,4 @@ SWAP_POINTERS_END:
 	retw
 	.size	nn_asm, .-nn_asm
 	.ident	"GCC: (crosstool-NG esp-13.2.0_20230928) 13.2.0"
-
 

@@ -35,7 +35,7 @@ void app_main(void)
     
     vTaskDelay(pdMS_TO_TICKS(500));
     
-    uint32_t inferences_n = 10;
+    uint32_t inferences_n = 100;
     
     while(inferences_n)
     {
