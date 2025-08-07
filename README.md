@@ -35,7 +35,7 @@ The current implementation supports the **ESP32-S3** microcontroller from Espres
 The Ingenuity Inference Engine currently supports quantized TensorFlow Lite models based on **fully connected feed-forward** neural networks.
 <p></p>
 
-**Support for other microcontrollers and neural network architectures is planned as part of the roadmap.**
+**Support for other microcontrollers and neural network architectures is planned as part of the roadmap**
 <br></br>
 
 ### Demonstration
@@ -95,8 +95,20 @@ This result highlights the effectiveness of the PQRM method, which **eliminates 
 ## Setup
 Download the latest release (Ingenuity-v1.0.1.exe) and run it—no installation required.
 
+## Roadmap
+
+- [x] Support for ESP32-S3  
+- [x] Support for fully connected feed-forward neural networks  
+- [ ] Support for convolutional neural networks (CNNs)  
+- [ ] Energy measurement with Nordic PPK2
+- [ ] Support for additional microcontrollers (e.g., STM32)
+
 ## Contributing
-For detailed guidelines on contributions, please check the [CONTRIBUTING.md](CONTRIBUTING.md) file.
+Contributions to Ingenuity are welcome.
+Please open an issue to propose features, report bugs, or discuss potential improvements before submitting a pull request.
+<p></p>
+Thank you for your support!
+
 
 ## License  
 This project is licensed under the **GNU General Public License v3.0**.  
