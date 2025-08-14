@@ -96,7 +96,7 @@ This result highlights the effectiveness of the PQRM method, which **eliminates 
 Download the latest release (Ingenuity-v1.0.1.exe) and run it—no installation required.
 
 ## Roadmap
-
+The following roadmap applies to the Ingenuity Inference Engine, not the benchmark tool.
 <br>
 <div align="left">
   <img src="./assets/roadmap.png" alt="roadmap" />
