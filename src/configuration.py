@@ -3,8 +3,8 @@
 
 import numpy as np
 
-VERSION_INGENUITY = "1.0.0"
-BUILD_INGENUITY = "1 March 2025"
+VERSION_INGENUITY = "1.0.2"
+BUILD_INGENUITY = "14 August 2025"
 
 # Logger output path
 PATH_LOGS = './logs'
