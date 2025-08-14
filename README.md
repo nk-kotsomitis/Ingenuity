@@ -97,11 +97,11 @@ Download the latest release (Ingenuity-v1.0.1.exe) and run it—no installation 
 
 ## Roadmap
 
-- [x] Support for ESP32-S3  
-- [x] Support for fully connected feed-forward neural networks  
-- [ ] Support for convolutional neural networks (CNNs)  
-- [ ] Energy measurement with Nordic PPK2
-- [ ] Support for additional microcontrollers (e.g., STM32)
+<br>
+<div align="left">
+  <img src="./assets/roadmap.png" alt="roadmap" />
+</div>
+<br>
 
 ## Contributing
 Contributions to Ingenuity are welcome.
