@@ -111,7 +111,7 @@ Please open an issue to propose features, report bugs, or discuss potential impr
 If Ingenuity is already useful to you, please give it a ⭐ on GitHub. If the planned roadmap features could bring value to you or your company, consider becoming a sponsor to help bring them to life!
 
 <p></p>
-Thank you for your support!
+Thank you for your support! 
 <br>
 
 
